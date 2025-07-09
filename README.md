@@ -1,0 +1,83 @@
+# Racing Vision AI Package
+
+这个ROS2功能包用于接收origincar_msg的Sign信号，当sign值达到配置的目标值时，订阅一帧图像并使用火山引擎大模型进行图生文字分析。
+
+## 功能特性
+
+- 监听`sign_switch`话题的origincar_msg/Sign消息
+- 当接收到配置的目标sign值时，订阅图像话题获取一帧图像
+- 将图像发送给火山引擎AI大模型进行分析
+- 输出AI分析结果到日志
+- 支持配置文件管理API密钥和参数
+
+## 安装依赖
+
+1. 安装Python依赖：
+```bash
+pip install -r requirements.txt
+```
+
+2. 配置参数：
+编辑 `config/vision_ai_config.yaml` 文件，设置你的API密钥和模型信息：
+```yaml
+volcengine:
+  api_key: "your_volcengine_api_key_here"
+  model_id: "your_model_id_here"
+detection:
+  target_sign: 9  # 触发图像分析的sign值
+```
+
+## 编译和运行
+
+1. 编译功能包：
+```bash
+cd /root/ros2_ws
+colcon build --packages-select racing_vision_ai
+source install/setup.bash
+```
+
+2. 运行节点：
+```bash
+ros2 run racing_vision_ai vision_ai_node
+```
+
+## 话题接口
+
+### 订阅的话题
+
+- `sign_switch` (origincar_msg/Sign): 控制信号，当sign值为配置的target_sign时触发图像分析
+- `/image` (sensor_msgs/CompressedImage): 压缩图像数据话题（仅在接收到触发信号时订阅）
+
+## 配置文件
+
+配置文件位于 `config/vision_ai_config.yaml`，包含以下配置项：
+
+### 火山引擎配置
+- `volcengine.api_key`: API密钥
+- `volcengine.model_id`: 模型ID
+- `volcengine.prompt`: AI分析提示词
+
+### 检测配置
+- `detection.target_sign`: 触发图像分析的sign值（默认为9）
+- `detection.image_topic`: 图像话题名称
+- `detection.sign_topic`: sign话题名称
+
+### 图像处理配置
+- `image.jpeg_quality`: JPEG图像质量（1-100）
+- `image.format`: 图像格式
+
+## 注意事项
+
+1. 确保已正确配置config/vision_ai_config.yaml文件中的API密钥和模型ID
+2. 根据实际情况调整配置文件中的话题名称和目标sign值
+3. 节点接收到触发信号后只处理一帧图像，然后取消图像话题订阅
+4. AI分析结果会输出到ROS日志中
+
+## 故障排除
+
+如果出现"volcengine-python-sdk[ark] not installed"警告，请安装依赖：
+```bash
+pip install volcengine-python-sdk[ark]
+```
+
+如果出现配置文件相关错误，请检查config/vision_ai_config.yaml文件是否存在且格式正确。
