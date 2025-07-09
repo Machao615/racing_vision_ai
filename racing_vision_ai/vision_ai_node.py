@@ -9,7 +9,7 @@ from PIL import Image
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
-from origincar_msg.msg import Sign
+from std_msgs.msg import Int32
 from sensor_msgs.msg import CompressedImage
 from cv_bridge import CvBridge
 import yaml
@@ -62,10 +62,10 @@ class VisionAINode(Node):
         # QoS配置
         qos_profile = QoSProfile(depth=10)
         
-        # 订阅sign_switch话题
+        # 订阅sign4return话题
         self.sign_subscriber = self.create_subscription(
-            Sign,
-            self.config.get('detection', {}).get('sign_topic', 'sign_switch'),  # 状态切换话题
+            Int32,
+            self.config.get('detection', {}).get('sign_topic', 'sign4return'),  # 状态切换话题
             self.sign_callback,
             qos_profile
         )
@@ -77,7 +77,7 @@ class VisionAINode(Node):
         self.image_sub = None
         
         self.get_logger().info("Vision AI Node initialized")
-        self.get_logger().info(f"Waiting for sign_switch={self.target_sign} signal...")
+        self.get_logger().info(f"Waiting for sign4return={self.target_sign} signal...")
     
     def load_config(self):
         """加载配置文件"""
@@ -96,11 +96,11 @@ class VisionAINode(Node):
             return {}
     
     def sign_callback(self, msg):
-        """处理sign信号"""
-        self.get_logger().info(f"Received sign: {msg.sign}")
+        """处理sign4return信号"""
+        self.get_logger().info(f"Received sign4return: {msg.data}")
         
-        if msg.sign == self.target_sign:
-            self.get_logger().info(f"Received trigger signal (sign={self.target_sign}), subscribing to image topic...")
+        if msg.data == self.target_sign:
+            self.get_logger().info(f"Received trigger signal (sign4return={self.target_sign}), subscribing to image topic...")
             self.waiting_for_image = True
             
             # 创建图像订阅者

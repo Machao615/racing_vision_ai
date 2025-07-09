@@ -1,10 +1,10 @@
 # Racing Vision AI Package
 
-这个ROS2功能包用于接收origincar_msg的Sign信号，当sign值达到配置的目标值时，订阅一帧图像并使用火山引擎大模型进行图生文字分析。
+这个ROS2功能包用于接收sign4return信号，当信号值达到配置的目标值时，订阅一帧图像并使用火山引擎大模型进行图生文字分析。
 
 ## 功能特性
 
-- 监听`sign_switch`话题的origincar_msg/Sign消息
+- 监听`sign4return`话题的std_msgs/Int32消息
 - 当接收到配置的目标sign值时，订阅图像话题获取一帧图像
 - 将图像发送给火山引擎AI大模型进行分析
 - 输出AI分析结果到日志
@@ -45,7 +45,7 @@ ros2 run racing_vision_ai vision_ai_node
 
 ### 订阅的话题
 
-- `sign_switch` (origincar_msg/Sign): 控制信号，当sign值为配置的target_sign时触发图像分析
+- `sign4return` (std_msgs/Int32): 控制信号，当值为配置的target_sign时触发图像分析
 - `/image` (sensor_msgs/CompressedImage): 压缩图像数据话题（仅在接收到触发信号时订阅）
 
 ## 配置文件

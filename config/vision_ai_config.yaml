@@ -19,7 +19,7 @@ detection:
   image_topic: "/image"
   
   # sign话题名称  
-  sign_topic: "sign_switch"
+  sign_topic: "sign4return"
 
 # 图像处理配置
 image:
