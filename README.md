@@ -1,83 +1,117 @@
 # Racing Vision AI Package
 
-这个ROS2功能包用于接收sign4return信号，当信号值达到配置的目标值时，订阅一帧图像并使用火山引擎大模型进行图生文字分析。
+English | [简体中文](./README_cn.md)
 
-## 功能特性
+This ROS2 package is designed to receive the `sign4return` signal. When the signal value reaches the configured target, it subscribes to an image topic, sends a single frame to the Volcengine AI model for image-to-text analysis, and outputs the result.
 
-- 监听`sign4return`话题的std_msgs/Int32消息
-- 当接收到配置的目标sign值时，订阅图像话题获取一帧图像
-- 将图像发送给火山引擎AI大模型进行分析
-- 输出AI分析结果到日志
-- 支持配置文件管理API密钥和参数
+## Features
 
-## 安装依赖
+- Listens to the `sign4return` topic (`std_msgs/Int32`)
+- Subscribes to an image topic and captures a single frame when the target sign value is received
+- Sends the image to the Volcengine AI model for analysis
+- Outputs AI analysis results to the ROS log
+- Supports configuration files for managing API keys and parameters
+- Supports configuration via ROS2 parameters and environment variables
 
-1. 安装Python依赖：
+## Dependencies
+
+1. Install Python dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. 配置参数：
-编辑 `config/vision_ai_config.yaml` 文件，设置你的API密钥和模型信息：
+2. Configure parameters:
+Edit the `config/vision_ai_config.yaml` file and set your API key and model information:
 ```yaml
 volcengine:
   api_key: "your_volcengine_api_key_here"
   model_id: "your_model_id_here"
 detection:
-  target_sign: 9  # 触发图像分析的sign值
+  target_sign: 9  # The sign value that triggers image analysis
 ```
 
-## 编译和运行
+## Build and Run
 
-1. 编译功能包：
+1. Build the package:
 ```bash
 cd /root/ros2_ws
 colcon build --packages-select racing_vision_ai
 source install/setup.bash
 ```
 
-2. 运行节点：
+2. Run the node (with default configuration):
 ```bash
 ros2 run racing_vision_ai vision_ai_node
 ```
 
-## 话题接口
+3. Run with a specific config file:
+```bash
+ros2 run racing_vision_ai vision_ai_node --ros-args -p config_path:=/path/to/your/vision_ai_config.yaml
+```
 
-### 订阅的话题
+4. Set API key and model ID via environment variables:
+```bash
+export ARK_API_KEY="your_api_key_here" 
+export ARK_MODEL_ID="your_model_id_here"
+ros2 run racing_vision_ai vision_ai_node
+```
 
-- `sign4return` (std_msgs/Int32): 控制信号，当值为配置的target_sign时触发图像分析
-- `/image` (sensor_msgs/CompressedImage): 压缩图像数据话题（仅在接收到触发信号时订阅）
+## Configuration Priority
 
-## 配置文件
+The system loads configuration in the following order:
 
-配置文件位于 `config/vision_ai_config.yaml`，包含以下配置项：
+1. Config file specified via parameter (`--ros-args -p config_path:=...`)
+2. Config file in the current working directory
+3. Development environment config file
+4. Installed environment config file
 
-### 火山引擎配置
-- `volcengine.api_key`: API密钥
-- `volcengine.model_id`: 模型ID
-- `volcengine.prompt`: AI分析提示词
+For API key and model ID, the priority is:
+1. Settings in the config file
+2. Environment variables (`ARK_API_KEY` and `ARK_MODEL_ID`)
+3. Default values
 
-### 检测配置
-- `detection.target_sign`: 触发图像分析的sign值（默认为9）
-- `detection.image_topic`: 图像话题名称
-- `detection.sign_topic`: sign话题名称
+## Topic Interfaces
 
-### 图像处理配置
-- `image.jpeg_quality`: JPEG图像质量（1-100）
-- `image.format`: 图像格式
+### Subscribed Topics
 
-## 注意事项
+- `sign4return` (`std_msgs/Int32`): Control signal; triggers image analysis when the value matches `target_sign`
+- `/image` (`sensor_msgs/CompressedImage`): Compressed image topic (subscribed only when triggered)
 
-1. 确保已正确配置config/vision_ai_config.yaml文件中的API密钥和模型ID
-2. 根据实际情况调整配置文件中的话题名称和目标sign值
-3. 节点接收到触发信号后只处理一帧图像，然后取消图像话题订阅
-4. AI分析结果会输出到ROS日志中
+## Configuration File
 
-## 故障排除
+The configuration file is located at `config/vision_ai_config.yaml` and includes:
 
-如果出现"volcengine-python-sdk[ark] not installed"警告，请安装依赖：
+### Volcengine Settings
+- `volcengine.api_key`: API key
+- `volcengine.model_id`: Model ID
+- `volcengine.prompt`: AI analysis prompt
+
+### Detection Settings
+- `detection.target_sign`: The sign value that triggers image analysis (default: 9)
+- `detection.image_topic`: Image topic name
+- `detection.sign_topic`: Sign topic name
+
+### Image Processing Settings
+- `image.jpeg_quality`: JPEG image quality (1-100)
+- `image.format`: Image format
+
+## Notes
+
+1. Ensure the API key and model ID are correctly set in the config file or via environment variables
+2. Adjust topic names and target sign value in the config file as needed
+3. The node processes only one image frame per trigger and then unsubscribes from the image topic
+4. AI analysis results are output to the ROS log
+5. You can modify the config file at any time; changes take effect on the next node startup
+
+## Troubleshooting
+
+If you see a "volcengine-python-sdk[ark] not installed" warning, install the dependency:
 ```bash
 pip install volcengine-python-sdk[ark]
 ```
 
-如果出现配置文件相关错误，请检查config/vision_ai_config.yaml文件是否存在且格式正确。
+If the config file cannot be found, try the following:
+1. Check if the config file path is correct
+2. Use the `--ros-args -p config_path:=` parameter to specify the absolute path
+3. Place the config file in the current working directory
+4. Use environment variables to override key parameters
