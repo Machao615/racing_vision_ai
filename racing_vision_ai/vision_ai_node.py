@@ -173,7 +173,7 @@ class VisionAINode(Node):
             result = self.analyze_image_with_ai(cv_image)
             
             if result:
-                self.get_logger().info(f"AI Analysis Result: {result}")
+                self.get_logger().error(f"AI Analysis Result: {result}")
             else:
                 self.get_logger().warn("Failed to get AI analysis result")
         
